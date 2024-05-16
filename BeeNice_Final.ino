@@ -1,5 +1,6 @@
 #include <Wire.h>
-#include <Adafruit_CCS811.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME680.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <HX711.h>
@@ -9,12 +10,18 @@
 #define OLED_RESET -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+#define SEALEVELPRESSURE_HPA (1013.25)
+
+#define BME_SCK 18
+#define BME_MISO 19
+#define BME_MOSI 23
+#define BME_CS 5
+
 #define LED_PIN_1 4
 #define LED_PIN_2 16
 #define LED_PIN_3 17
 
-#define CCS811_ADDR 0x5A // Default I2C address
-Adafruit_CCS811 ccs;
+Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
 
 #define DOUT 13
 #define CLK 12
@@ -28,8 +35,8 @@ void setup() {
   pinMode(LED_PIN_2, OUTPUT);
   pinMode(LED_PIN_3, OUTPUT);
 
-  if (!ccs.begin(CCS811_ADDR)) {
-    Serial.println("Failed to start CCS811 sensor! Check wiring.");
+  if (!bme.begin()) {
+    Serial.println("Could not find BME680 sensor!");
     while (1);
   }
   
@@ -48,17 +55,13 @@ void setup() {
 }
 
 void loop() {
-  if (!ccs.readData()) {
-    Serial.println("Failed to read data from CCS811 sensor!");
+  if (! bme.performReading()) {
+    Serial.println("Failed to perform reading :(");
     return;
   }
-  if (!ccs.available()) {
-    Serial.println("Data not available from CCS811 sensor!");
-    return;
-  }
-  temperature = ccs.calculateTemperature();
-  humidity = ccs.calculateHumidity();
-  voc = ccs.getTVOC();
+  temperature = bme.temperature;
+  humidity = bme.humidity;
+  voc = bme.gas_resistance / 1000.0; // convert from Ohms to kOhms
 
   weight = scale.get_units(10); // Get weight measurement
   
