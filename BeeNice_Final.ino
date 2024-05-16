@@ -79,7 +79,7 @@ void loop() {
 
   display.print("VOC: ");
   display.print(voc);
-  display.println(" PPM");
+  display.println(" mg/m3");
 
   display.print("Weight: ");
   display.print(weight);
