@@ -1,3 +1,7 @@
+/*The C++ code present in the file was written for use in ESP32 and aims to control two sensors 
+(a BME680 and a set of 4 load cell sensors) to measure weight, temperature, humidity and the presence of volatile organic compounds in the hive, 
+  and notify The system user knows the conditions of the hive through LED light signals and through data displayed on an OLED screen.*/
+
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME680.h>
